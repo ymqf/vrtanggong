@@ -1,0 +1,660 @@
+<krpano version="1.19" title="全景漫游">
+
+	<include url="skin/vtourskin.xml" />
+	<include url="qr.xml" devices="desktop" />
+	<include url="start.xml" devices="desktop" />
+
+	<!-- customize skin settings: maps, gyro, webvr, thumbnails, tooltips, layout, design, ... -->
+	<skin_settings maps="true"
+	               maps_type="false"
+	               maps_bing_api_key=""
+	               maps_google_api_key=""
+	               maps_zoombuttons="false"
+	               gyro="true"
+	               webvr="true"
+	               webvr_gyro_keeplookingdirection="false"
+	               webvr_prev_next_hotspots="true"
+	               littleplanetintro="true"
+	               title="true"
+	               thumbs="true"
+	               thumbs_width="120" thumbs_height="80" thumbs_padding="10" thumbs_crop="0|40|240|160"
+	               thumbs_opened="false"
+	               thumbs_text="true"
+	               thumbs_dragging="true"
+	               thumbs_onhoverscrolling="false"
+	               thumbs_scrollbuttons="false"
+	               thumbs_scrollindicator="false"
+	               thumbs_loop="false"
+	               tooltips_buttons="false"
+	               tooltips_thumbs="false"
+	               tooltips_hotspots="false"
+	               tooltips_mapspots="false"
+	               deeplinking="true"
+	               loadscene_flags="MERGE"
+	               loadscene_blend="OPENBLEND(0.5, 0.0, 0.75, 0.05, linear)"
+	               loadscene_blend_prev="SLIDEBLEND(0.5, 180, 0.75, linear)"
+	               loadscene_blend_next="SLIDEBLEND(0.5,   0, 0.75, linear)"
+	               loadingtext="loading..."
+	               layout_width="100%"
+	               layout_maxwidth="814"
+	               controlbar_width="-24"
+	               controlbar_height="40"
+	               controlbar_offset="20"
+	               controlbar_offset_closed="-40"
+	               controlbar_overlap.no-fractionalscaling="10"
+	               controlbar_overlap.fractionalscaling="0"
+	               design_skin_images="vtourskin.png"
+	               design_bgcolor="0x2D3E50"
+	               design_bgalpha="0.8"
+	               design_bgborder="0"
+	               design_bgroundedge="1"
+	               design_bgshadow="0 4 10 0x000000 0.3"
+	               design_thumbborder_bgborder="3 0xFFFFFF 1.0"
+	               design_thumbborder_padding="2"
+	               design_thumbborder_bgroundedge="0"
+	               design_text_css="color:#FFFFFF; font-family:Arial;"
+	               design_text_shadow="1"
+	               />
+
+	<!--
+	    For an alternative skin design either change the <skin_settings> values 
+	    from above or optionally include one of the predefined designs from below.
+	-->
+	<!-- <include url="skin/vtourskin_design_flat_light.xml"  /> -->
+	<!-- <include url="skin/vtourskin_design_glass.xml"       /> -->
+	<!-- <include url="skin/vtourskin_design_ultra_light.xml" /> -->
+	<!-- <include url="skin/vtourskin_design_117.xml"         /> -->
+	<include url="skin/vtourskin_design_117round.xml"    /> -->
+	<!-- <include url="skin/vtourskin_design_black.xml"       /> -->
+
+
+	<!-- startup action - load the first scene -->
+	<action name="startup" autorun="onstart">
+		if(startscene === null OR !scene[get(startscene)], copy(startscene,scene[0].name); );
+		loadscene(get(startscene), null, MERGE);
+		if(startactions !== null, startactions() );
+		playsound(bgsnd, 'backgroundmusic.mp3', 0);
+	</action>
+
+
+<plugin name="soundinterface"
+
+url="%SWFPATH%/plugins/soundinterface.swf"
+
+alturl="%SWFPATH%/plugins/soundinterface.js"
+
+rootpath=""
+
+preload="true"
+
+keep="true"
+
+/>
+	<action name="add_all_the_time_tooltip_for_VR">
+
+   txtadd(tooltipname, 'vrtooltip_', get(name));
+   addhotspot(get(tooltipname));
+   set(hotspot[get(tooltipname)].type,text);
+   copy(hotspot[get(tooltipname)].edge,hotspot[get(name)].edge);
+   copy(hotspot[get(tooltipname)].distorted,hotspot[get(name)].distorted);
+   copy(hotspot[get(tooltipname)].ath,hotspot[get(name)].ath);
+   copy(hotspot[get(tooltipname)].atv,hotspot[get(name)].atv);
+   set(hotspot[get(tooltipname)].oy,-25);
+   set(hotspot[get(tooltipname)].ox,0);
+   set(hotspot[get(tooltipname)].vcenter,true);
+   set(hotspot[get(tooltipname)].padding,6);
+   set(hotspot[get(tooltipname)].bg,true);
+   set(hotspot[get(tooltipname)].bgcolor,0x000000);
+   set(hotspot[get(tooltipname)].bgroundedge,5);
+   set(hotspot[get(tooltipname)].bgalpha,0.5);
+   set(hotspot[get(tooltipname)].bgborder,0);
+   set(hotspot[get(tooltipname)].bgshadow,'0 0 0 0x000000 0');
+   set(hotspot[get(tooltipname)].css,'text-align:left; color:#FFFFFF; font-family:SimSun; font-size:14px;');
+   if(device.mobile,set(hotspot[get(tooltipname)].css,'text-align:center; color:#FFFFFF; font-family:SimSun;  font-size:12px;');
+   );
+   set(hotspot[get(tooltipname)].txtshadow,'0 0 0 0x000000 0');
+   if(text == '' OR text === null,
+     copy(hotspot[get(tooltipname)].html,scene[get(linkedscene)].title),
+     copy(hotspot[get(tooltipname)].html,text);
+   );
+   set(hotspot[get(tooltipname)].enabled,false);
+   if(lp_running == false,
+    set(hotspot[get(tooltipname)].visible,true);
+    ,
+
+    if(!webvr.isenabled,
+      if(lp_running == true,
+      set(hotspot[get(tooltipname)].visible,false);
+      set(hotspot[get(tooltipname)].mark2,true);
+       );
+      );
+    );
+   if(hotspot[get(name)].normal == false,
+    set(hotspot[get(tooltipname)].normal,false);
+    set(hotspot[get(tooltipname)].onloaded,
+      if(webvr.isenabled,
+        set(visible,false);
+        ,
+        if(lp_running == false OR lp_running == null,
+          set(visible,true);
+          );
+        );
+         );
+    );
+</action>
+
+  <action name="do_crop_animation">
+  registerattribute(xframes, calc((imagewidth / %1) BOR 0));
+  registerattribute(yframes, calc((imageheight / %2) BOR 0));
+  registerattribute(frames, calc(xframes * yframes));
+  registerattribute(frame, 0);
+  set(crop, '0|0|%1|%2');
+  setinterval(calc('crop_anim_' + name), calc(1.0 / %3),
+    if(loaded,
+      inc(frame);
+      if(frame GE frames, if(onlastframe !== null, onlastframe() ); set(frame,0); );
+      mod(xpos, frame, xframes);
+      div(ypos, frame, xframes);
+      Math.floor(ypos);
+      mul(xpos, %1);
+      mul(ypos, %2);
+      calc(crop, xpos + '|' + ypos + '|%1|%2');
+      ,
+      clearinterval(calc('crop_anim_' + name));
+      );
+    );
+</action>
+
+
+
+
+<scene name="scene_104" title="陶源广场" onstart="" havevrimage="true" thumburl="panos/104.tiles/thumb.jpg" lat="" lng="" heading="0.0">
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/104.tiles/preview.jpg" />
+
+		<image type="CUBE" prealign="0|0.0|0" multires="true" tilesize="512" if="!webvr.isenabled">
+			<level tiledimagewidth="6400" tiledimageheight="6400">
+				<cube url="panos/104.tiles/%s/l4/%0v/l4_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="3200" tiledimageheight="3200">
+				<cube url="panos/104.tiles/%s/l3/%0v/l3_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="1536" tiledimageheight="1536">
+				<cube url="panos/104.tiles/%s/l2/%0v/l2_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="768" tiledimageheight="768">
+				<cube url="panos/104.tiles/%s/l1/%0v/l1_%s_%0v_%0h.jpg" />
+			</level>
+		</image>
+
+		<image prealign="0|0.0|0" if="webvr.isenabled">
+			<cube url="panos/104.tiles/vr/pano_%s.jpg" />
+		</image>
+<layer name="logo"
+url="logo.png"
+keep="true"
+align="righttop" x="10" y="10"
+onclick="openurl('index1.html', _self');" />
+
+		<hotspot name="spot1" url="spot1.png" scale="0.5" onloaded="do_crop_animation(128,128, 60);add_all_the_time_tooltip_for_VR();" ath="-113.000" atv="1.000" onclick="loadscene(get(linkedscene))" linkedscene="scene_127"  />		
+		<hotspot name="spot2" url="spot1.png" scale="0.5" onloaded="do_crop_animation(128,128, 60);add_all_the_time_tooltip_for_VR();" ath="84.000" atv="1.000" onclick="loadscene(get(linkedscene))" linkedscene="scene_121"  />
+		<hotspot name="spot3" url="spot1.png" scale="0.5" onloaded="do_crop_animation(128,128, 60);add_all_the_time_tooltip_for_VR();" ath="-89.000" atv="2.000" onclick="loadscene(get(linkedscene))" linkedscene="scene_126"  />
+		<hotspot name="spot4" url="spot1.png" scale="0.5" onloaded="do_crop_animation(128,128, 60);add_all_the_time_tooltip_for_VR();" ath="103.000" atv="1.000" onclick="loadscene(get(linkedscene))" linkedscene="scene_122"  />
+		<hotspot name="spot5" url="spot1.png" scale="0.5" onloaded="do_crop_animation(128,128, 60);add_all_the_time_tooltip_for_VR();" ath="-97.000" atv="4.000" onclick="loadscene(get(linkedscene))" linkedscene="scene_125"  />
+		<hotspot name="spot6" url="spot1.png" scale="0.5" onloaded="do_crop_animation(128,128, 60);add_all_the_time_tooltip_for_VR();" ath="-21.000" atv="5.000" onclick="openurl('chuang/index.html',_self);" text="创新创业中心"/>
+		<hotspot name="spot7" url="spot1.png" scale="0.5" onloaded="do_crop_animation(128,128, 60);add_all_the_time_tooltip_for_VR();" ath="24.000" atv="14.000" onclick="openurl('xiaoshi/index.html',_self);" text="校史馆"/>
+				
+		<hotspot name="spot8" style="skin_hotspotstyle" ath="-0.383" atv="-9.648" distorted="false" zoom="false" linkedscene="scene_102" />
+		<hotspot name="spot9" style="skin_hotspotstyle" ath="-177.635" atv="-10.543" distorted="false" zoom="false" linkedscene="scene_101" />
+		<hotspot name="spot10" style="skin_hotspotstyle" ath="-47.436" atv="11.883" distorted="false" zoom="false" linkedscene="scene_106" />
+		<hotspot name="spot11" url="spot1.png" scale="0.7" onloaded="do_crop_animation(128,128, 60);add_all_the_time_tooltip_for_VR();" ath="-176.996" atv="3.194" distorted="false" zoom="false" onclick="loadscene(get(linkedscene))" linkedscene="scene_111"  />
+		<hotspot name="spot12" url="spot1.png" scale="0.7" onloaded="do_crop_animation(128,128, 60);add_all_the_time_tooltip_for_VR();" ath="-0.196" atv="36.750" distorted="false" zoom="false" onclick="loadscene(get(linkedscene))" linkedscene="scene_113"  />
+	</scene>
+	
+		<scene name="scene_111" title="学院南门" onstart="" havevrimage="true" thumburl="panos/111.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/111.tiles/preview.jpg" />
+
+		<image type="CUBE" multires="true" tilesize="512" if="!webvr.isenabled">
+			<level tiledimagewidth="4736" tiledimageheight="4736">
+				<cube url="panos/111.tiles/%s/l4/%0v/l4_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="2304" tiledimageheight="2304">
+				<cube url="panos/111.tiles/%s/l3/%0v/l3_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="1152" tiledimageheight="1152">
+				<cube url="panos/111.tiles/%s/l2/%0v/l2_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="640" tiledimageheight="640">
+				<cube url="panos/111.tiles/%s/l1/%0v/l1_%s_%0v_%0h.jpg" />
+			</level>
+		</image>
+
+		<image if="webvr.isenabled">
+			<cube url="panos/111.tiles/vr/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-0.760" atv="-3.793" distorted="false" zoom="false" linkedscene="scene_112" />
+
+	</scene>
+
+	<scene name="scene_112" title="校训" onstart="" havevrimage="true" thumburl="panos/112.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/112.tiles/preview.jpg" />
+
+		<image type="CUBE" multires="true" tilesize="512" if="!webvr.isenabled">
+			<level tiledimagewidth="4736" tiledimageheight="4736">
+				<cube url="panos/112.tiles/%s/l4/%0v/l4_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="2304" tiledimageheight="2304">
+				<cube url="panos/112.tiles/%s/l3/%0v/l3_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="1152" tiledimageheight="1152">
+				<cube url="panos/112.tiles/%s/l2/%0v/l2_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="640" tiledimageheight="640">
+				<cube url="panos/112.tiles/%s/l1/%0v/l1_%s_%0v_%0h.jpg" />
+			</level>
+		</image>
+
+		<image if="webvr.isenabled">
+			<cube url="panos/112.tiles/vr/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-0.380" atv="-3.983" distorted="false" zoom="false" linkedscene="scene_113" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="179.795" atv="-3.817" distorted="false" zoom="false" linkedscene="scene_111" />
+
+	</scene>
+
+	<scene name="scene_113" title="陶源广场" onstart="" havevrimage="true" thumburl="panos/113.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/113.tiles/preview.jpg" />
+
+		<image type="CUBE" multires="true" tilesize="512" if="!webvr.isenabled">
+			<level tiledimagewidth="4736" tiledimageheight="4736">
+				<cube url="panos/113.tiles/%s/l4/%0v/l4_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="2304" tiledimageheight="2304">
+				<cube url="panos/113.tiles/%s/l3/%0v/l3_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="1152" tiledimageheight="1152">
+				<cube url="panos/113.tiles/%s/l2/%0v/l2_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="640" tiledimageheight="640">
+				<cube url="panos/113.tiles/%s/l1/%0v/l1_%s_%0v_%0h.jpg" />
+			</level>
+		</image>
+
+		<image if="webvr.isenabled">
+			<cube url="panos/113.tiles/vr/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="163.569" atv="0.950" distorted="false" zoom="false" linkedscene="scene_112" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="104.490" atv="-0.029" distorted="false" zoom="false" linkedscene="scene_121" />
+		<hotspot name="spot3" url="spot2.png" scale="0.5" onloaded="do_crop_animation(128,128, 60);add_all_the_time_tooltip_for_VR();" ath="-21.713" atv="-16.091"  onclick="openurl('chuang/index.html',_self);" text="创新创业中心"/> 
+		<hotspot name="spot4" url="spot2.png" scale="0.5" onloaded="do_crop_animation(128,128, 60);add_all_the_time_tooltip_for_VR();" ath="21.024" atv="-6.346" distorted="false" zoom="false" onclick="openurl('xiaoshi/index.html',_self);" text="校史馆"/>
+		<hotspot name="spot5" style="skin_hotspotstyle" ath="-104.351" atv="-0.372" distorted="false" zoom="false" linkedscene="scene_125" />
+
+	</scene>
+
+	<scene name="scene_121" title="学前教育系" onstart="" havevrimage="true" thumburl="panos/121.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/121.tiles/preview.jpg" />
+
+		<image type="CUBE" multires="true" tilesize="512" if="!webvr.isenabled">
+			<level tiledimagewidth="4736" tiledimageheight="4736">
+				<cube url="panos/121.tiles/%s/l4/%0v/l4_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="2304" tiledimageheight="2304">
+				<cube url="panos/121.tiles/%s/l3/%0v/l3_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="1152" tiledimageheight="1152">
+				<cube url="panos/121.tiles/%s/l2/%0v/l2_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="640" tiledimageheight="640">
+				<cube url="panos/121.tiles/%s/l1/%0v/l1_%s_%0v_%0h.jpg" />
+			</level>
+		</image>
+
+		<image if="webvr.isenabled">
+			<cube url="panos/121.tiles/vr/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-131.686" atv="-1.262" distorted="false" zoom="false" linkedscene="scene_113" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="77.840" atv="-2.246" distorted="false" zoom="false" linkedscene="scene_122" />
+		<hotspot name="spot3" url="spot2.png" scale="0.5" onloaded="do_crop_animation(128,128, 60);add_all_the_time_tooltip_for_VR();" ath="0.760" atv="-3.225"  onclick="openurl('xueqian/index.html',_self);" text="学前教育系"/>
+
+	</scene>
+
+	<scene name="scene_122" title="管理工程系" onstart="" havevrimage="true" thumburl="panos/122.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/122.tiles/preview.jpg" />
+
+		<image type="CUBE" multires="true" tilesize="512" if="!webvr.isenabled">
+			<level tiledimagewidth="4736" tiledimageheight="4736">
+				<cube url="panos/122.tiles/%s/l4/%0v/l4_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="2304" tiledimageheight="2304">
+				<cube url="panos/122.tiles/%s/l3/%0v/l3_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="1152" tiledimageheight="1152">
+				<cube url="panos/122.tiles/%s/l2/%0v/l2_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="640" tiledimageheight="640">
+				<cube url="panos/122.tiles/%s/l1/%0v/l1_%s_%0v_%0h.jpg" />
+			</level>
+		</image>
+
+		<image if="webvr.isenabled">
+			<cube url="panos/122.tiles/vr/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="144.112" atv="-1.760" distorted="false" zoom="false" linkedscene="scene_121" />
+		<hotspot name="spot2" url="spot2.png" scale="0.5" onloaded="do_crop_animation(128,128, 60);add_all_the_time_tooltip_for_VR();" ath="1.140" atv="-4.929" distorted="false" zoom="false" onclick="openurl('guanli/index.html',_self);" text="管理工程系"/>
+
+	</scene>
+
+	<scene name="scene_125" title="自动化工程系" onstart="" havevrimage="true" thumburl="panos/125.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/125.tiles/preview.jpg" />
+
+		<image type="CUBE" multires="true" tilesize="512" if="!webvr.isenabled">
+			<level tiledimagewidth="4736" tiledimageheight="4736">
+				<cube url="panos/125.tiles/%s/l4/%0v/l4_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="2304" tiledimageheight="2304">
+				<cube url="panos/125.tiles/%s/l3/%0v/l3_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="1152" tiledimageheight="1152">
+				<cube url="panos/125.tiles/%s/l2/%0v/l2_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="640" tiledimageheight="640">
+				<cube url="panos/125.tiles/%s/l1/%0v/l1_%s_%0v_%0h.jpg" />
+			</level>
+		</image>
+
+		<image if="webvr.isenabled">
+			<cube url="panos/125.tiles/vr/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot1" url="spot2.png" scale="0.5" onloaded="do_crop_animation(128,128, 60);add_all_the_time_tooltip_for_VR();"  ath="-0.380" atv="-4.930" distorted="false" zoom="false" onclick="openurl('zidong/index.html',_self);" text="自动化工程系"/>
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="67.362" atv="-1.517" distorted="false" zoom="false" linkedscene="scene_126" />
+		<hotspot name="spot3" style="skin_hotspotstyle" ath="-156.231" atv="0.093" distorted="false" zoom="false" linkedscene="scene_113" />
+
+	</scene>
+
+	<scene name="scene_126" title="机械工程系" onstart="" havevrimage="true" thumburl="panos/126.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/126.tiles/preview.jpg" />
+
+		<image type="CUBE" multires="true" tilesize="512" if="!webvr.isenabled">
+			<level tiledimagewidth="4736" tiledimageheight="4736">
+				<cube url="panos/126.tiles/%s/l4/%0v/l4_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="2304" tiledimageheight="2304">
+				<cube url="panos/126.tiles/%s/l3/%0v/l3_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="1152" tiledimageheight="1152">
+				<cube url="panos/126.tiles/%s/l2/%0v/l2_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="640" tiledimageheight="640">
+				<cube url="panos/126.tiles/%s/l1/%0v/l1_%s_%0v_%0h.jpg" />
+			</level>
+		</image>
+
+		<image if="webvr.isenabled">
+			<cube url="panos/126.tiles/vr/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="126.494" atv="0.052" distorted="false" zoom="false" linkedscene="scene_127" />
+		<hotspot name="spot2" url="spot2.png" scale="0.5" onloaded="do_crop_animation(128,128, 60);add_all_the_time_tooltip_for_VR();" ath="-0.374" atv="-1.895" distorted="false" zoom="false" onclick="openurl('jixie/index.html',_self);" text="机械工程系"/>
+		<hotspot name="spot3" style="skin_hotspotstyle" ath="64.754" atv="-2.614" distorted="false" zoom="false" linkedscene="scene_125" />
+
+	</scene>
+
+	<scene name="scene_127" title="汽车工程系" onstart="" havevrimage="true" thumburl="panos/127.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/127.tiles/preview.jpg" />
+
+		<image type="CUBE" multires="true" tilesize="512" if="!webvr.isenabled">
+			<level tiledimagewidth="4736" tiledimageheight="4736">
+				<cube url="panos/127.tiles/%s/l4/%0v/l4_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="2304" tiledimageheight="2304">
+				<cube url="panos/127.tiles/%s/l3/%0v/l3_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="1152" tiledimageheight="1152">
+				<cube url="panos/127.tiles/%s/l2/%0v/l2_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="640" tiledimageheight="640">
+				<cube url="panos/127.tiles/%s/l1/%0v/l1_%s_%0v_%0h.jpg" />
+			</level>
+		</image>
+
+		<image if="webvr.isenabled">
+			<cube url="panos/127.tiles/vr/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot1" url="spot2.png" scale="0.5" onloaded="do_crop_animation(128,128, 60);add_all_the_time_tooltip_for_VR();"  ath="-0.000" atv="-1.518" distorted="false" zoom="false" onclick="openurl('qiche/index.html',_self)" text="汽车工程系"/>
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="-117.740" atv="-1.360" distorted="false" zoom="false" linkedscene="scene_126" />
+		<hotspot name="spot3" style="skin_hotspotstyle" ath="-62.561" atv="-1.200" distorted="false" zoom="false" linkedscene="scene_125" />
+
+	</scene>
+
+	<scene name="scene_102" title="俯瞰校园" onstart="" havevrimage="true" thumburl="panos/102.tiles/thumb.jpg" lat="" lng="" heading="0.0">
+
+		<view hlookat="-178.971" vlookat="52.723" fovtype="MFOV" fov="120.094" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/102.tiles/preview.jpg" />
+
+		<image type="CUBE" prealign="0|0.0|0" multires="true" tilesize="512" if="!webvr.isenabled">
+			<level tiledimagewidth="6400" tiledimageheight="6400">
+				<cube url="panos/102.tiles/%s/l4/%0v/l4_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="3200" tiledimageheight="3200">
+				<cube url="panos/102.tiles/%s/l3/%0v/l3_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="1536" tiledimageheight="1536">
+				<cube url="panos/102.tiles/%s/l2/%0v/l2_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="768" tiledimageheight="768">
+				<cube url="panos/102.tiles/%s/l1/%0v/l1_%s_%0v_%0h.jpg" />
+			</level>
+		</image>
+
+		<image prealign="0|0.0|0" if="webvr.isenabled">
+			<cube url="panos/102.tiles/vr/pano_%s.jpg" />
+		</image>
+	
+		<hotspot name="spot8" style="skin_hotspotstyle" ath="-0.535" atv="14.822" distorted="false" zoom="false" linkedscene="scene_101" />
+
+	</scene>
+
+	<scene name="scene_101" title="校园全景" onstart="" havevrimage="true" thumburl="panos/101.tiles/thumb.jpg" lat="" lng="" heading="0.0">
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/101.tiles/preview.jpg" />
+
+		<image type="CUBE" prealign="0|0.0|0" multires="true" tilesize="512" if="!webvr.isenabled">
+			<level tiledimagewidth="4736" tiledimageheight="4736">
+				<cube url="panos/101.tiles/%s/l4/%0v/l4_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="2304" tiledimageheight="2304">
+				<cube url="panos/101.tiles/%s/l3/%0v/l3_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="1152" tiledimageheight="1152">
+				<cube url="panos/101.tiles/%s/l2/%0v/l2_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="640" tiledimageheight="640">
+				<cube url="panos/101.tiles/%s/l1/%0v/l1_%s_%0v_%0h.jpg" />
+			</level>
+		</image>
+
+		<image prealign="0|0.0|0" if="webvr.isenabled">
+			<cube url="panos/101.tiles/vr/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="0.571" atv="7.387" distorted="false" zoom="false" linkedscene="scene_104" />
+
+	</scene>
+
+	<scene name="scene_103" title="校园全景" onstart="" havevrimage="true" thumburl="panos/103.tiles/thumb.jpg" lat="3" lng="" heading="0.0">
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/103.tiles/preview.jpg" />
+
+		<image type="CUBE" prealign="0|0.0|0" multires="true" tilesize="512" if="!webvr.isenabled">
+			<level tiledimagewidth="6400" tiledimageheight="6400">
+				<cube url="panos/103.tiles/%s/l4/%0v/l4_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="3200" tiledimageheight="3200">
+				<cube url="panos/103.tiles/%s/l3/%0v/l3_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="1536" tiledimageheight="1536">
+				<cube url="panos/103.tiles/%s/l2/%0v/l2_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="768" tiledimageheight="768">
+				<cube url="panos/103.tiles/%s/l1/%0v/l1_%s_%0v_%0h.jpg" />
+			</level>
+		</image>
+
+		<image prealign="0|0.0|0" if="webvr.isenabled">
+			<cube url="panos/103.tiles/vr/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-179.278" atv="13.995" distorted="false" zoom="false" linkedscene="scene_101" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="13.004" atv="52.745" distorted="false" zoom="false" linkedscene="scene_104" />
+
+	</scene>
+
+	
+
+	<scene name="scene_105" title="107会议室" onstart="" havevrimage="true" thumburl="panos/105.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/105.tiles/preview.jpg" />
+
+		<image type="CUBE" multires="true" tilesize="512" if="!webvr.isenabled">
+			<level tiledimagewidth="4736" tiledimageheight="4736">
+				<cube url="panos/105.tiles/%s/l4/%0v/l4_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="2304" tiledimageheight="2304">
+				<cube url="panos/105.tiles/%s/l3/%0v/l3_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="1152" tiledimageheight="1152">
+				<cube url="panos/105.tiles/%s/l2/%0v/l2_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="640" tiledimageheight="640">
+				<cube url="panos/105.tiles/%s/l1/%0v/l1_%s_%0v_%0h.jpg" />
+			</level>
+		</image>
+
+		<image if="webvr.isenabled">
+			<cube url="panos/105.tiles/vr/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-55.066" atv="7.745" distorted="false" zoom="false" linkedscene="scene_106" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="-133.501" atv="12.101" distorted="false" zoom="false" linkedscene="scene_104" />
+
+	</scene>
+
+	<scene name="scene_106" title="学术报告厅" onstart="" havevrimage="true" thumburl="panos/106.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/106.tiles/preview.jpg" />
+
+		<image type="CUBE" multires="true" tilesize="512" if="!webvr.isenabled">
+			<level tiledimagewidth="4736" tiledimageheight="4736">
+				<cube url="panos/106.tiles/%s/l4/%0v/l4_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="2304" tiledimageheight="2304">
+				<cube url="panos/106.tiles/%s/l3/%0v/l3_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="1152" tiledimageheight="1152">
+				<cube url="panos/106.tiles/%s/l2/%0v/l2_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="640" tiledimageheight="640">
+				<cube url="panos/106.tiles/%s/l1/%0v/l1_%s_%0v_%0h.jpg" />
+			</level>
+		</image>
+
+		<image if="webvr.isenabled">
+			<cube url="panos/106.tiles/vr/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="25.142" atv="1.664" linkedscene="scene_107" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="103.526" atv="2.532" distorted="false" zoom="false" linkedscene="scene_105" />
+		<hotspot name="spot3" style="skin_hotspotstyle" ath="-89.493" atv="-1.301" distorted="false" zoom="false" linkedscene="scene_104" />
+
+	</scene>
+
+	<scene name="scene_107" title="学术报告厅" onstart="" havevrimage="true" thumburl="panos/107.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/107.tiles/preview.jpg" />
+
+		<image type="CUBE" multires="true" tilesize="512" if="!webvr.isenabled">
+			<level tiledimagewidth="4736" tiledimageheight="4736">
+				<cube url="panos/107.tiles/%s/l4/%0v/l4_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="2304" tiledimageheight="2304">
+				<cube url="panos/107.tiles/%s/l3/%0v/l3_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="1152" tiledimageheight="1152">
+				<cube url="panos/107.tiles/%s/l2/%0v/l2_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="640" tiledimageheight="640">
+				<cube url="panos/107.tiles/%s/l1/%0v/l1_%s_%0v_%0h.jpg" />
+			</level>
+		</image>
+
+		<image if="webvr.isenabled">
+			<cube url="panos/107.tiles/vr/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="69.384" atv="-3.498" linkedscene="scene_108" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="-101.282" atv="5.283" linkedscene="scene_106" />
+
+	</scene>
+
+	<scene name="scene_108" title="学术报告厅" onstart="" havevrimage="true" thumburl="panos/108.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/108.tiles/preview.jpg" />
+
+		<image type="CUBE" multires="true" tilesize="512" if="!webvr.isenabled">
+			<level tiledimagewidth="4736" tiledimageheight="4736">
+				<cube url="panos/108.tiles/%s/l4/%0v/l4_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="2304" tiledimageheight="2304">
+				<cube url="panos/108.tiles/%s/l3/%0v/l3_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="1152" tiledimageheight="1152">
+				<cube url="panos/108.tiles/%s/l2/%0v/l2_%s_%0v_%0h.jpg" />
+			</level>
+			<level tiledimagewidth="640" tiledimageheight="640">
+				<cube url="panos/108.tiles/%s/l1/%0v/l1_%s_%0v_%0h.jpg" />
+			</level>
+		</image>
+
+		<image if="webvr.isenabled">
+			<cube url="panos/108.tiles/vr/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="2.250" atv="10.236" distorted="false" zoom="false" linkedscene="scene_106" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="-58.695" atv="13.765" distorted="false" zoom="false" linkedscene="scene_107" />
+
+	</scene>
+
+
+</krpano>

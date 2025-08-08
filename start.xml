@@ -1,0 +1,81 @@
+
+<krpano>
+   
+ 
+<layer name="startpic_container"
+preload="false"
+handcursor="true"
+enabled="true"
+children="true"
+visible="true"
+zorder="90"
+type="container"
+maskchildren="true"
+keep="true"
+width="100%"
+height="100%"
+bgcolor="0xffffff"
+bgalpha="1" >
+ 
+<layer name="skin_start"
+zorder="100"
+keep="true"
+width=""
+height=""
+x="0"
+y="0"
+align="top"
+url="start.png"
+scale="0.8"
+onclick="tween(layer[startpic_container].alpha,0,0.3);
+delayedcall(1,set(layer[startpic_container].enabled,false);
+set(layer[startpic_container].visible,false);
+stopdelayedcall(startpic1);stopdelayedcall(startpic2);"
+enabled="false" />
+ 
+<layer name="skin_title_pr"
+background="false"
+backgroundcolor="0xffffff"
+roundedge="10"
+backgroundalpha="1"
+border="false"
+bordercolor="0xffffff"
+borderalpha="1.0"
+borderwidth="4.0"
+glow="0"
+glowcolor="0xCCCCCC"
+visible="true"
+keep="true"
+alpha="1.0"
+children="false"
+align="bottom"
+zorder="200"
+autowidth="auto"
+height="40"
+url="%SWFPATH%/plugins/textfield.swf"
+html="唐山工业职业技术学院 CopyRight ©2018"
+css="text-align:center; color:#000000; font-family:Arial; font-weight:normal; font-size:16px;"
+x="0"
+y="10"
+onclick="tween(layer[startpic_container].alpha,0,0.3);
+delayedcall(2,set(layer[startpic_container].enabled,false);
+set(layer[startpic_container].visible,false);
+stopdelayedcall(startpic1);stopdelayedcall(startpic2);"
+enabled="false"
+ 
+/>
+ 
+</layer>
+ 
+<!-- å¯åŠ¨ç”»é¢ç»“æŸ -->
+
+<events name="startlogoevents" keep="true"
+onloadcomplete="
+ifnot(layer[skin_title_logo3].enabled,
+set(layer[skin_title_logo3].enabled,true);
+set(layer[skin_title_pr].enabled,true);
+delayedcall(startpic1,3,tween(layer[startpic_container].alpha,0,0.3));
+delayedcall(startpic2,4,set(layer[startpic_container].enabled,false);set(layer[startpic_container].visible,false));)
+"/>
+
+</krpano>
