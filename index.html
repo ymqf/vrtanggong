@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>唐山工业职业技术学院数字化虚拟校园全景漫游</title>
+	<title>唐山工业职业技术大学数校园全景漫游</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
@@ -12,9 +12,152 @@
 		@media only screen and (min-device-width:800px) { html { overflow:hidden; } }
 		html { height:100%; }
 		body { height:100%; overflow:hidden; margin:0; padding:0; font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#FFFFFF; background-color:#000000; }
+		
+		/* 弹窗样式 */
+		.popup-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.7);
+			z-index: 9999;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		
+		.popup-content {
+			background-color: #ffffff;
+			border-radius: 15px;
+			padding: 30px;
+			text-align: center;
+			max-width: 400px;
+			width: 90%;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+			position: relative;
+			animation: popup-appear 0.3s ease-out;
+		}
+		
+		@keyframes popup-appear {
+			from {
+				opacity: 0;
+				transform: scale(0.7);
+			}
+			to {
+				opacity: 1;
+				transform: scale(1);
+			}
+		}
+		
+		.popup-title {
+			color: #333;
+			font-size: 20px;
+			font-weight: bold;
+			margin-bottom: 20px;
+			line-height: 1.4;
+		}
+		
+		.popup-qr {
+			width: 200px;
+			height: 200px;
+			margin: 0 auto 20px;
+			border: 2px solid #f0f0f0;
+			border-radius: 10px;
+			padding: 10px;
+		}
+		
+		.popup-qr img {
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+		}
+		
+		.popup-subtitle {
+			color: #666;
+			font-size: 14px;
+			margin-bottom: 20px;
+		}
+		
+		.popup-close {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			width: 30px;
+			height: 30px;
+			background-color: #f0f0f0;
+			border: none;
+			border-radius: 50%;
+			cursor: pointer;
+			font-size: 18px;
+			color: #666;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s ease;
+		}
+		
+		.popup-close:hover {
+			background-color: #e0e0e0;
+			color: #333;
+		}
+		
+		.popup-button {
+			background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+			color: white;
+			border: none;
+			padding: 12px 30px;
+			border-radius: 25px;
+			font-size: 16px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			font-weight: bold;
+		}
+		
+		.popup-button:hover {
+			background: linear-gradient(45deg, #ff5252, #e53935);
+			transform: translateY(-2px);
+			box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+		}
+		
+		@media (max-width: 480px) {
+			.popup-content {
+				padding: 20px;
+				margin: 10px;
+			}
+			
+			.popup-title {
+				font-size: 18px;
+			}
+			
+			.popup-qr {
+				width: 150px;
+				height: 150px;
+			}
+		}
 	</style>
 </head>
 <body>
+
+<!-- 弹窗 -->
+<div id="welcomePopup" class="popup-overlay">
+	<div class="popup-content">
+		<button class="popup-close" onclick="closePopup()">&times;</button>
+		<div class="popup-title">
+			🎆 欢迎来到唐山工业职业技术大学🎆<br>
+			扫码添加一梦学长微信获取更多新生攻略
+		</div>
+		<div class="popup-qr">
+			<img src="wx.jpg" alt="微信二维码" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y1ZjVmNSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7or7flsIblm77niYfliLDmraTlo7I8L3RleHQ+PC9zdmc+'" />
+		</div>
+		<div class="popup-subtitle">
+			📱 扫码关注，获取新生入学指南、校园生活攻略
+		</div>
+		<button class="popup-button" onclick="closePopup()">
+			我知道了
+		</button>
+	</div>
+</div>
 
 <script src="tour.js"></script>
 
@@ -24,6 +167,49 @@
 		embedpano({swf:"tour.swf", xml:"tour.xml", target:"pano", html5:"auto", mobilescale:1.0, passQueryParameters:true});
 	</script>
 </div>
+
+<!-- 弹窗控制脚本 -->
+<script>
+	// 关闭弹窗函数
+	function closePopup() {
+		const popup = document.getElementById('welcomePopup');
+		popup.style.opacity = '0';
+		popup.style.transform = 'scale(0.7)';
+		setTimeout(() => {
+			popup.style.display = 'none';
+		}, 300);
+		
+		// 将弹窗关闭状态保存到 localStorage
+		localStorage.setItem('popupClosed', 'true');
+	}
+	
+	// 点击遮罩层关闭弹窗
+	document.getElementById('welcomePopup').addEventListener('click', function(e) {
+		if (e.target === this) {
+			closePopup();
+		}
+	});
+	
+	// 页面加载完成后显示弹窗
+	window.addEventListener('load', function() {
+		// 检查是否已经关闭过弹窗（可选）
+		// const popupClosed = localStorage.getItem('popupClosed');
+		// if (!popupClosed) {
+			// 延迟 500ms 显示弹窗，让页面先加载
+			setTimeout(() => {
+				const popup = document.getElementById('welcomePopup');
+				popup.style.display = 'flex';
+			}, 500);
+		// }
+	});
+	
+	// ESC 键关闭弹窗
+	document.addEventListener('keydown', function(e) {
+		if (e.key === 'Escape') {
+			closePopup();
+		}
+	});
+</script>
 
 </body>
 </html>
